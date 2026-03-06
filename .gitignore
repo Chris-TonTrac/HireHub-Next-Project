@@ -38,4 +38,7 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# Claude AI local settings
+.claude/
 next-env.d.ts
