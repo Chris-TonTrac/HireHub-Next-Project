@@ -2,24 +2,33 @@ import Link from "next/link";
 
 const NavigationBar = () => {
   return (
-    <div className="navbar bg-mist-200 shadow-lg pb-4">
-      <div className="navbar-start">
-        <Link href="#" className="btn btn-ghost rounded-md hover:bg-gray-800 hover:text-white text-xl">
-          Hire<span className="text-blue-600">Hub</span>
-        </Link>
-      </div>
+    <header className="border-b border-slate-300/70 bg-[#f7f6f2]">
+      <div className="navbar mx-auto max-w-6xl px-3 sm:px-5">
+        <div className="navbar-start">
+          <Link href="/" className="rounded-xl px-2 py-1 text-xl font-heading font-bold tracking-tight text-slate-900 transition hover:opacity-80">
+            Hire<span className="text-emerald-800">Hub</span>
+          </Link>
+        </div>
 
-      <div className="btn btn-ghost rounded-md text-gray-500 hover:bg-gray-800 hover:text-white font-bold">
-        <Link href="/jobs">
-          Browse Jobs
-        </Link>
-      </div>
+        <div className="navbar-center hidden md:flex">
+          <Link
+            href="/jobs"
+            className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white hover:text-slate-900"
+          >
+            Browse Jobs
+          </Link>
+        </div>
 
-      <div className="navbar-end">
-        <Link href="#" className="btn bg-blue-600 border-0 mr-2.5">Sign Up</Link>
-        <Link href="#" className="btn bg-blue-600 border-0">Post Job</Link>
+        <div className="navbar-end gap-2">
+          <Link
+            href="/jobs"
+            className="inline-flex rounded-lg bg-emerald-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-900"
+          >
+            Post Job
+          </Link>
+        </div>
       </div>
-    </div>
+    </header>
   )
 }
 

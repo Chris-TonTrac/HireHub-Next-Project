@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: hire_hub_api
+    restart: unless-stopped
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_DB: hire_hub_api
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ChrisDev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
