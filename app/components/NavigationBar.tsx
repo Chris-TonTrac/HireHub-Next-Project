@@ -3,40 +3,22 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { getToken, removeToken } from "../actions/auth"
-
-type TokenPayload = {
-    email?: string
-}
-
-const decodeJwtPayload = (token: string): TokenPayload | null => {
-    try {
-        const base64Url = token.split(".")[1]
-        if (!base64Url) return null
-
-        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/")
-        const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=")
-        return JSON.parse(atob(padded)) as TokenPayload
-    } catch {
-        return null
-    }
-}
+import { getCurrentUser, removeToken } from "../actions/auth"
 
 const NavigationBar = () => {
     const router = useRouter()
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [userName, setUserName] = useState("")
     const [userEmail, setUserEmail] = useState("")
+    const [dashboardHref, setDashboardHref] = useState("/dashboard")
 
     useEffect(() => {
-        const token = getToken()
-        if (!token) return
+        const user = getCurrentUser()
+        if (!user?.email) return
 
-        const payload = decodeJwtPayload(token)
-        if (!payload?.email) return
-
-        setUserEmail(payload.email)
-        setUserName(payload.email.split("@")[0])
+        setUserEmail(user.email)
+        setUserName(user.email.split("@")[0])
+        setDashboardHref(user.role === "admin" ? "/admin" : "/dashboard")
         setIsLoggedIn(true)
     }, [])
 
@@ -70,7 +52,7 @@ const NavigationBar = () => {
                     {isLoggedIn ? (
                         <>
                             <Link
-                                href="/dashboard"
+                                href={dashboardHref}
                                 className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white hover:text-slate-900"
                             >
                                 Dashboard

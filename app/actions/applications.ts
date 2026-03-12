@@ -30,3 +30,20 @@ export async function getAdminApplications(token: string): Promise<Application[]
   const data = await res.json()
   return data.allApplications ?? []
 }
+
+export async function updateAdminApplicationStatus(
+  token: string,
+  applicationId: string,
+  status: Application["status"]
+) {
+  const res = await fetch(`/api/admin/applications`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ applicationId, status }),
+  })
+
+  return res.json() as Promise<{ applicationId?: string; error?: string }>
+}

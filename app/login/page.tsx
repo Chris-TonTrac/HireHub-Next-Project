@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { login, setToken } from "../actions/auth"
+import { decodeToken, login, setToken } from "../actions/auth"
 
 const LoginPage = () => {
     const router = useRouter()
@@ -22,7 +22,8 @@ const LoginPage = () => {
         const result = await login(form.email, form.password)
         if (result.token) {
             setToken(result.token)
-            router.push("/")
+            const user = decodeToken(result.token)
+            router.push(user?.role === "admin" ? "/admin" : "/")
         } else {
             setError(result.error ?? "Failed to sign in.")
         }

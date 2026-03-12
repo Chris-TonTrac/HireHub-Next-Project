@@ -1,36 +1,184 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HireHub
 
-## Getting Started
+HireHub is a full-stack job board and applicant tracking app built with Next.js App Router, Drizzle ORM, and PostgreSQL.
 
-First, run the development server:
+It supports two roles:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- User: browse jobs, apply, save jobs, view dashboard stats.
+- Admin: manage job listings, review applicants, update application status, manage users.
+
+## Core Features
+
+- Public job browsing and job detail pages.
+- User authentication with JWT.
+- Role-based routing behavior:
+	- Admin login redirects to admin dashboard.
+	- User login redirects to home.
+- User dashboard:
+	- Applications overview
+	- Saved jobs
+	- Stats
+- Admin dashboard:
+	- Overview metrics
+	- Job management
+	- Applicant status updates
+	- User management
+- Saved jobs and application tracking.
+
+## Tech Stack
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- Tailwind CSS + DaisyUI + shadcn/ui
+- Drizzle ORM
+- PostgreSQL
+- JWT (jsonwebtoken)
+
+## Project Structure
+
+- app: pages, UI components, API routes, client actions.
+- app/actions: frontend action layer for API calls.
+- app/api: backend route handlers.
+- app/middleware/auth.middleware.ts: bearer token verification and role extraction.
+- lib/db: Drizzle schema definitions.
+- scripts/seed.mjs: API-based seeding script.
+- SCHEMA.md: table and relationship reference.
+- ENDPOINTS.md: endpoint catalog.
+- PROJECT_LOGIC.md: architecture and implementation details.
+
+## Prerequisites
+
+- Node.js 20+
+- pnpm
+- PostgreSQL
+
+## Environment Variables
+
+Create a .env file in project root:
+
+```env
+DATABASE_URL=postgresql://postgres:password@localhost:5436/hire_hub_api
+JWT_SECRET=replace-with-strong-secret
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Notes:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- DATABASE_URL and JWT_SECRET are required.
+- NEXT_PUBLIC_BASE_URL is used by server-side action fetch helpers.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Local Development
 
-## Learn More
+1. Install dependencies
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm install
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Start Postgres (Docker)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+docker compose up -d
+```
 
-## Deploy on Vercel
+3. Push schema with Drizzle
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm db:push
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. Run the app
+
+```bash
+pnpm dev
+```
+
+5. Open browser
+
+- http://localhost:3000
+
+## Seed Demo Data
+
+With the app running, seed users, companies, and jobs:
+
+```bash
+node scripts/seed.mjs
+```
+
+The seed script hits API endpoints, so dev server must be running on localhost:3000.
+
+Default seeded admin account:
+
+- Email: admin@hirehub.dev
+- Password: Admin123!
+
+## Available Scripts
+
+- pnpm dev: run development server
+- pnpm build: build for production
+- pnpm start: start production server
+- pnpm lint: run ESLint
+- pnpm db:push: push Drizzle schema to DB
+- pnpm db:studio: open Drizzle Studio
+
+## Authentication and Token Flow
+
+- Login endpoint returns a signed JWT with id, role, and email.
+- Frontend stores token in localStorage under hirehub_token.
+- Protected requests send Authorization: Bearer <token>.
+- Backend verifies token with JWT_SECRET in auth middleware.
+- UI reads decoded token for role-based navigation and display only.
+
+Security boundary:
+
+- Backend authorization checks are the source of truth.
+- Frontend token decoding is only for UX decisions.
+
+## Implemented API Routes (Current)
+
+Auth:
+
+- POST /api/auth/login
+
+Users:
+
+- GET /api/users
+- POST /api/users
+
+Jobs:
+
+- GET /api/jobs
+- POST /api/jobs
+- GET /api/jobs/[id]
+- PATCH /api/jobs/[id]
+- DELETE /api/jobs/[id]
+- POST /api/jobs/[id]/apply
+- POST /api/jobs/[id]/save
+
+Companies:
+
+- GET /api/companies
+- POST /api/companies
+- GET /api/companies/[id]
+
+Applications:
+
+- GET /api/applications
+- GET /api/admin/applications
+- PATCH /api/admin/applications
+
+Saved Jobs:
+
+- GET /api/saved-jobs
+
+Dashboard/Admin:
+
+- GET /api/dashboard/stats
+- GET /api/admin/stats
+- GET /api/admin/users
+- DELETE /api/admin/users/[id]
+
+## Notes
+
+- The generic template sections from create-next-app were replaced with project-specific documentation.

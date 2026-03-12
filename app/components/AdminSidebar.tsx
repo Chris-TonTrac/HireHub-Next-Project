@@ -1,6 +1,8 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
+import { removeToken } from "../actions/auth"
 
 const sidebarLinks = [
     { label: "Overview" },
@@ -15,6 +17,13 @@ type AdminSidebarProps = {
 }
 
 const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
+    const router = useRouter()
+
+    const handleLogout = () => {
+        removeToken()
+        router.push("/")
+    }
+
     return (
         <aside className="w-64 bg-white border-r border-border-default flex flex-col justify-between py-6 px-4">
             <div>
@@ -34,7 +43,7 @@ const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
                     ))}
                 </nav>
             </div>
-            <Button variant="destructive" className="w-full mt-8" size="default">
+            <Button variant="destructive" className="w-full mt-8" size="default" onClick={handleLogout}>
                 Log out
             </Button>
         </aside>

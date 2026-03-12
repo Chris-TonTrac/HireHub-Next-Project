@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { FaChevronDown } from "react-icons/fa"
-import { getAdminApplications, type Application } from "../actions/applications"
+import { getAdminApplications, type Application, updateAdminApplicationStatus } from "../actions/applications"
 import { getAdminUsers, type AdminUser } from "../actions/admin"
 import { getJobs, type Job } from "../actions/jobs"
 import { getCompanies, type Company } from "../actions/companies"
@@ -24,6 +24,8 @@ const AdminApplicants = () => {
     const [companyMap, setCompanyMap] = useState<Record<string, Company>>({})
     const [dropdownOpen, setDropdownOpen] = useState<number | null>(null)
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState("")
+    const [savingAppId, setSavingAppId] = useState<string | null>(null)
 
     useEffect(() => {
         const token = getToken()
@@ -44,10 +46,34 @@ const AdminApplicants = () => {
         fetchAll()
     }, [])
 
-    const handleStatusChange = (idx: number, newStatus: Application["status"]) => {
+    const handleStatusChange = async (idx: number, newStatus: Application["status"]) => {
+        const token = getToken()
+        if (!token) {
+            setError("You are not authenticated.")
+            return
+        }
+
+        const targetApplication = applications[idx]
+        if (!targetApplication) return
+
+        const previousStatus = targetApplication.status
+
+        setError("")
+        setSavingAppId(targetApplication.id)
         setApplications((prev) =>
             prev.map((app, i) => (i === idx ? { ...app, status: newStatus } : app))
         )
+
+        const result = await updateAdminApplicationStatus(token, targetApplication.id, newStatus)
+
+        if (result.error) {
+            setApplications((prev) =>
+                prev.map((app, i) => (i === idx ? { ...app, status: previousStatus } : app))
+            )
+            setError(result.error)
+        }
+
+        setSavingAppId(null)
         setDropdownOpen(null)
     }
 
@@ -59,6 +85,9 @@ const AdminApplicants = () => {
         <>
             <h1 className="text-2xl font-bold mb-6">All Applicants</h1>
             <div className="bg-white rounded-lg shadow p-6">
+                {error && (
+                    <p className="mb-4 text-sm text-red-600">{error}</p>
+                )}
                 {applications.length === 0 ? (
                     <p className="text-gray-400 text-sm">No applicants yet.</p>
                 ) : (
@@ -115,12 +144,15 @@ const AdminApplicants = () => {
                                                 <button
                                                     className="flex items-center gap-2 px-3 py-1 border rounded bg-white hover:bg-neutral-100 text-sm w-36 justify-between"
                                                     style={{ minWidth: "9rem" }}
+                                                    disabled={savingAppId === app.id}
                                                     onClick={(e) => {
                                                         e.preventDefault()
                                                         setDropdownOpen(dropdownOpen === idx ? null : idx)
                                                     }}
                                                 >
-                                                    <span className="truncate">{statusObj.label}</span>
+                                                    <span className="truncate">
+                                                        {savingAppId === app.id ? "Saving..." : statusObj.label}
+                                                    </span>
                                                     <FaChevronDown className="ml-1 text-xs" />
                                                 </button>
                                                 {dropdownOpen === idx && (
