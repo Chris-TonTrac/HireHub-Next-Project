@@ -10,7 +10,11 @@ export const GET = async (req: Request) => {
 
         const userSavedJobs = await db.select().from(savedJobs).where(eq(savedJobs.userId, user.id));
         return NextResponse.json({ userSavedJobs });
-    } catch(err) {
-        return NextResponse.json({ error: "Failed to fetch user saved jobs"}, { status: 400})
+    } catch (err) {
+        if (err instanceof Error && err.name === "AuthError") {
+            return NextResponse.json({ error: err.message }, { status: 401 });
+        }
+
+        return NextResponse.json({ error: "Failed to fetch user saved jobs." }, { status: 500 });
     }
 }

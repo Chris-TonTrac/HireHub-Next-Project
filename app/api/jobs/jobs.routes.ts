@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 import { jobsTable } from "@/lib/db/jobs";
 import { companiesTable } from "@/lib/db/companies";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 // GET /api/jobs and GET /api/jobs?featured=true
 export const GET = async (request: NextRequest) => {
@@ -13,7 +13,9 @@ export const GET = async (request: NextRequest) => {
             const featuredJobs = await db
                 .select()
                 .from(jobsTable)
-                .where(eq(jobsTable.isFeatured, true));
+                .where(eq(jobsTable.isFeatured, true))
+                .orderBy(desc(jobsTable.postedAt))
+                .limit(4);
 
             return NextResponse.json({ featuredJobs });
         }
